@@ -126,7 +126,6 @@ struct cyttsp_platform_data {
 	int (*cust_spec)(u8 data[], int size);
 	char *name;
 	s16 irq_gpio;
-	u8 idac_gain;
 };
 
 #endif /* _CYTTSP_H_ */
