@@ -415,6 +415,8 @@ static void __init lpj_init(void)
 
 void __init msm_acpu_clock_init(struct msm_acpu_clock_platform_data *clkdata)
 {
+	struct clkctl_acpu_speed *s;
+
 	pr_info("acpu_clock_init()\n");
 
 	mutex_init(&drv_state.lock);
@@ -422,6 +424,13 @@ void __init msm_acpu_clock_init(struct msm_acpu_clock_platform_data *clkdata)
 	drv_state.vdd_switch_time_us = clkdata->vdd_switch_time_us;
 	acpuclk_init();
 	lpj_init();
+
+	for (s = acpu_freq_tbl; s->acpu_clk_khz != 0; s++)
+		;
+	s--;
+	acpuclk_set_rate(0, s->acpu_clk_khz, SETRATE_CPUFREQ);
+	pr_info("ACPU init done, clock rate now : %d\n",
+			drv_state.current_speed->acpu_clk_khz);
 
 	cpufreq_frequency_table_get_attr(freq_table, smp_processor_id());
 }
