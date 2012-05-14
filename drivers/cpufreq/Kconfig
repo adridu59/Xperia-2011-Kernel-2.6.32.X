@@ -252,6 +252,12 @@ config CPU_FREQ_GOV_INTERACTIVE
 	 Designed for low latency burst workloads. Scaling it done when coming
 	 out of idle instead of polling.
 
+config CPU_FREQ_GOV_INTERACTIVE
+	tristate "'interactive' cpufreq policy governor"
+	help
+	  'interactive' - This driver adds a dynamic cpufreq policy governor
+	  designed for latency-sensitive workloads.
+
 config CPU_FREQ_GOV_CONSERVATIVE
 	tristate "'conservative' cpufreq governor"
 	depends on CPU_FREQ

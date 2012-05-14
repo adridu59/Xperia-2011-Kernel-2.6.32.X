@@ -293,6 +293,7 @@ static ssize_t mtd_write(struct file *file, const char __user *buf, size_t count
 			ops.oobbuf = NULL;
 			ops.ooboffs = 0;
 			ops.len = len;
+			ops.ooboffs = 0;
 
 			ret = mtd->write_oob(mtd, *ppos, &ops);
 			retlen = ops.retlen;
