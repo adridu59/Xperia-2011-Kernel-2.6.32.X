@@ -1,4 +1,4 @@
-/* Copyright (c) 2002,2007-2011, Code Aurora Forum. All rights reserved.
+/* Copyright (c) 2002,2007-2010, Code Aurora Forum. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -486,7 +486,6 @@ kgsl_yamato_init(struct kgsl_device *device, struct kgsl_devconfig *config)
 								device;
 	int status = -EINVAL;
 	struct kgsl_memregion *regspace = &device->regspace;
-	struct kgsl_platform_data *pdata = NULL;
 
 	KGSL_DRV_VDBG("enter (device=%p, config=%p)\n", device, config);
 
@@ -543,9 +542,6 @@ kgsl_yamato_init(struct kgsl_device *device, struct kgsl_devconfig *config)
 	device->interval_timeout = INTERVAL_YAMATO_TIMEOUT;
 
 	ATOMIC_INIT_NOTIFIER_HEAD(&device->ts_notifier_list);
-	INIT_LIST_HEAD(&device->memqueue);
-
-	pdata = kgsl_driver.pdev->dev.platform_data;
 
 	kgsl_yamato_getfunctable(&device->ftbl);
 	if (config->mmu_config) {
@@ -553,9 +549,8 @@ kgsl_yamato_init(struct kgsl_device *device, struct kgsl_devconfig *config)
 		device->mmu.mpu_base  = config->mpu_base;
 		device->mmu.mpu_range = config->mpu_range;
 		device->mmu.va_base	  = config->va_base;
-		device->mmu.va_range  = pdata->pt_va_size;
+		device->mmu.va_range  = config->va_range;
 	}
-
 
 	status = kgsl_mmu_init(device);
 	if (status != 0) {
@@ -680,9 +675,9 @@ static int kgsl_yamato_start(struct kgsl_device *device)
 	kgsl_yamato_regwrite(device, REG_RBBM_SOFT_RESET, 0xFFFFFFFF);
 
 	/* The core is in an indeterminate state until the reset completes
-	 * after 30ms.
+	 * after 50ms.
 	 */
-	msleep(30);
+	msleep(50);
 
 	kgsl_yamato_regwrite(device, REG_RBBM_SOFT_RESET, 0x00000000);
 
@@ -1235,7 +1230,7 @@ static long kgsl_yamato_ioctl(struct kgsl_device_private *dev_priv,
 			break;
 		}
 
-		if (test_bit(binbase.drawctxt_id, dev_priv->ctxt_bitmap)) {
+		if (dev_priv->ctxt_id_mask & (1 << binbase.drawctxt_id)) {
 			result = kgsl_drawctxt_set_bin_base_offset(
 					dev_priv->device,
 					binbase.drawctxt_id,
